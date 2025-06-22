@@ -21,7 +21,7 @@ void tcc0_init(void)
 	// Save interrupts enabled/disabled state
 	s=SREG;
 	// Disable interrupts
-	cli(); //#asm("cli")
+	cli();
 
 	// Disable and reset the timer/counter just to be sure
 	tc0_disable(&TCC0);
@@ -105,7 +105,6 @@ void tcc0_init(void)
 
 // alle 10ms
 // Timer/Counter TCC0 Overflow/Underflow interrupt service routine
-//interrupt [TCC0_OVF_vect] void tcc0_overflow_isr(void)
 ISR(TCC0_OVF_vect)
 {
 	static uint8_t sec = 0;

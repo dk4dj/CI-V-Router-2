@@ -1,5 +1,14 @@
 #include <main.h>
 
+// Baud rate:	4800			9600			19200			38400
+// BSCALE =		-3 (0x0d)		-4 (0x0c)		-5 (0x0b)		-6 (0x0a)
+// BSEL =		3325 (0x0cfd)	3317 (0x0cf5)	3301 (0x0ce5)	3269 (0x0cc5)
+#define BSCALE_value 0x0b
+#define BSEL_value 0x0ce5
+// automatic register value calculation
+#define BAUDCTRLA_value (BSEL_value & 0x00ff)
+#define BAUDCTRLB_value ((BSCALE_value << 4) | (BSEL_value >> 8))
+
 // USARTC0 initialization
 void usartc0_init(void)
 {
@@ -22,11 +31,9 @@ void usartc0_init(void)
 	USARTC0.CTRLA=(USARTC0.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTC0.BAUDCTRLA=0xFD;
-	USARTC0.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
-
+	USARTC0.BAUDCTRLA = BAUDCTRLA_value;
+	USARTC0.BAUDCTRLB = BAUDCTRLB_value;
+	
 	// Receiver: On
 	// Transmitter: On
 	// Double transmission speed mode: Off
@@ -54,7 +61,6 @@ volatile unsigned int rx_counter_usartc0=0;
 uint8_t rx_buffer_overflow_usartc0=0;
 
 // USARTC0 Receiver interrupt service routine
-//interrupt [USARTC0_RXC_vect] void usartc0_rx_isr(void)
 ISR(USARTC0_RXC_vect)
 {
 	unsigned char status;
@@ -80,7 +86,6 @@ ISR(USARTC0_RXC_vect)
 }
 
 // Receive a character from USARTC0
-//#pragma used+
 int getchar_usartc0(void)
 {
 	char data;
@@ -92,22 +97,19 @@ int getchar_usartc0(void)
 	if (rx_rd_index_usartc0 == RX_BUFFER_SIZE_USARTC0) rx_rd_index_usartc0=0;
 	#endif
 	
-	cli(); //#asm("cli")
+	cli();
 	--rx_counter_usartc0;
-	sei(); //#asm("sei")
+	sei();
 
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTC0 Transmitter
-//#pragma used+
 void putchar_usartc0(char c)
 {
 	while ((USARTC0.STATUS & USART_DREIF_bm) == 0);
 	USARTC0.DATA=c;
 }
-//#pragma used-
 
 // USARTC1 initialization
 void usartc1_init(void)
@@ -131,10 +133,8 @@ void usartc1_init(void)
 	USARTC1.CTRLA=(USARTC1.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTC1.BAUDCTRLA=0xFD;
-	USARTC1.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
+	USARTC1.BAUDCTRLA = BAUDCTRLA_value;
+	USARTC1.BAUDCTRLB = BAUDCTRLB_value;
 
 	// Receiver: On
 	// Transmitter: On
@@ -163,7 +163,6 @@ volatile unsigned int rx_counter_usartc1=0;
 uint8_t rx_buffer_overflow_usartc1=0;
 
 // USARTC1 Receiver interrupt service routine
-//interrupt [USARTC1_RXC_vect] void usartc1_rx_isr(void)
 ISR(USARTC1_RXC_vect)
 {
 	unsigned char status;
@@ -189,7 +188,6 @@ ISR(USARTC1_RXC_vect)
 }
 
 // Receive a character from USARTC1
-//#pragma used+
 int getchar_usartc1(void)
 {
 	char data;
@@ -199,21 +197,18 @@ int getchar_usartc1(void)
 	#if RX_BUFFER_SIZE_USARTC1 != 256
 	if (rx_rd_index_usartc1 == RX_BUFFER_SIZE_USARTC1) rx_rd_index_usartc1=0;
 	#endif
-	cli(); //#asm("cli")
+	cli();
 	--rx_counter_usartc1;
-	sei(); //#asm("sei")
+	sei();
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTC1 Transmitter
-//#pragma used+
 void putchar_usartc1(char c)
 {
 	while ((USARTC1.STATUS & USART_DREIF_bm) == 0);
 	USARTC1.DATA=c;
 }
-//#pragma used-
 
 // USARTD0 initialization
 void usartd0_init(void)
@@ -237,10 +232,8 @@ void usartd0_init(void)
 	USARTD0.CTRLA=(USARTD0.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTD0.BAUDCTRLA=0xFD;
-	USARTD0.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
+	USARTD0.BAUDCTRLA = BAUDCTRLA_value;
+	USARTD0.BAUDCTRLB = BAUDCTRLB_value;
 
 	// Receiver: On
 	// Transmitter: On
@@ -269,7 +262,6 @@ volatile unsigned int rx_counter_usartd0=0;
 uint8_t rx_buffer_overflow_usartd0=0;
 
 // USARTD0 Receiver interrupt service routine
-//interrupt [USARTD0_RXC_vect] void usartd0_rx_isr(void)
 ISR(USARTD0_RXC_vect)
 {
 	unsigned char status;
@@ -295,7 +287,6 @@ ISR(USARTD0_RXC_vect)
 }
 
 // Receive a character from USARTD0
-//#pragma used+
 int getchar_usartd0(void)
 {
 	char data;
@@ -305,21 +296,18 @@ int getchar_usartd0(void)
 	#if RX_BUFFER_SIZE_USARTD0 != 256
 	if (rx_rd_index_usartd0 == RX_BUFFER_SIZE_USARTD0) rx_rd_index_usartd0=0;
 	#endif
-	cli(); //#asm("cli")
+	cli();
 	--rx_counter_usartd0;
-	sei(); //#asm("sei")
+	sei();
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTD0 Transmitter
-//#pragma used+
 void putchar_usartd0(char c)
 {
 	while ((USARTD0.STATUS & USART_DREIF_bm) == 0);
 	USARTD0.DATA=c;
 }
-//#pragma used-
 
 // USARTD1 initialization
 void usartd1_init(void)
@@ -343,10 +331,8 @@ void usartd1_init(void)
 	USARTD1.CTRLA=(USARTD1.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTD1.BAUDCTRLA=0xFD;
-	USARTD1.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
+	USARTD1.BAUDCTRLA = BAUDCTRLA_value;
+	USARTD1.BAUDCTRLB = BAUDCTRLB_value;
 
 	// Receiver: On
 	// Transmitter: On
@@ -375,7 +361,6 @@ volatile unsigned int rx_counter_usartd1=0;
 uint8_t rx_buffer_overflow_usartd1=0;
 
 // USARTD1 Receiver interrupt service routine
-//interrupt [USARTD1_RXC_vect] void usartd1_rx_isr(void)
 ISR(USARTD1_RXC_vect)
 {
 	unsigned char status;
@@ -401,7 +386,6 @@ ISR(USARTD1_RXC_vect)
 }
 
 // Receive a character from USARTD1
-//#pragma used+
 int getchar_usartd1(void)
 {
 	char data;
@@ -411,21 +395,18 @@ int getchar_usartd1(void)
 	#if RX_BUFFER_SIZE_USARTD1 != 256
 	if (rx_rd_index_usartd1 == RX_BUFFER_SIZE_USARTD1) rx_rd_index_usartd1=0;
 	#endif
-	cli(); //#asm("cli")
+	cli(); 
 	--rx_counter_usartd1;
-	sei(); //#asm("sei")
+	sei(); 
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTD1 Transmitter
-//#pragma used+
 void putchar_usartd1(char c)
 {
 	while ((USARTD1.STATUS & USART_DREIF_bm) == 0);
 	USARTD1.DATA=c;
 }
-//#pragma used-
 
 // USARTE0 initialization
 void usarte0_init(void)
@@ -449,10 +430,8 @@ void usarte0_init(void)
 	USARTE0.CTRLA=(USARTE0.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTE0.BAUDCTRLA=0xFD;
-	USARTE0.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
+	USARTE0.BAUDCTRLA = BAUDCTRLA_value;
+	USARTE0.BAUDCTRLB = BAUDCTRLB_value;
 
 	// Receiver: On
 	// Transmitter: On
@@ -481,7 +460,6 @@ volatile unsigned int rx_counter_usarte0=0;
 uint8_t rx_buffer_overflow_usarte0=0;
 
 // USARTE0 Receiver interrupt service routine
-//interrupt [USARTE0_RXC_vect] void usarte0_rx_isr(void)
 ISR(USARTE0_RXC_vect)
 {
 	unsigned char status;
@@ -507,7 +485,6 @@ ISR(USARTE0_RXC_vect)
 }
 
 // Receive a character from USARTE0
-//#pragma used+
 int getchar_usarte0(void)
 {
 	char data;
@@ -517,21 +494,18 @@ int getchar_usarte0(void)
 	#if RX_BUFFER_SIZE_USARTE0 != 256
 	if (rx_rd_index_usarte0 == RX_BUFFER_SIZE_USARTE0) rx_rd_index_usarte0=0;
 	#endif
-	cli(); //#asm("cli")
+	cli(); 
 	--rx_counter_usarte0;
-	sei(); //#asm("sei")
+	sei(); 
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTE0 Transmitter
-//#pragma used+
 void putchar_usarte0(char c)
 {
 	while ((USARTE0.STATUS & USART_DREIF_bm) == 0);
 	USARTE0.DATA=c;
 }
-//#pragma used-
 
 // USARTE1 initialization
 void usarte1_init(void)
@@ -555,10 +529,8 @@ void usarte1_init(void)
 	USARTE1.CTRLA=(USARTE1.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTE1.BAUDCTRLA=0xFD;
-	USARTE1.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
+	USARTE1.BAUDCTRLA = BAUDCTRLA_value;
+	USARTE1.BAUDCTRLB = BAUDCTRLB_value;
 
 	// Receiver: On
 	// Transmitter: On
@@ -587,7 +559,6 @@ volatile unsigned int rx_counter_usarte1=0;
 uint8_t rx_buffer_overflow_usarte1=0;
 
 // USARTE1 Receiver interrupt service routine
-//interrupt [USARTE1_RXC_vect] void usarte1_rx_isr(void)
 ISR(USARTE1_RXC_vect)
 {
 	unsigned char status;
@@ -613,7 +584,6 @@ ISR(USARTE1_RXC_vect)
 }
 
 // Receive a character from USARTE1
-//#pragma used+
 int getchar_usarte1(void)
 {
 	char data;
@@ -623,21 +593,18 @@ int getchar_usarte1(void)
 	#if RX_BUFFER_SIZE_USARTE1 != 256
 	if (rx_rd_index_usarte1 == RX_BUFFER_SIZE_USARTE1) rx_rd_index_usarte1=0;
 	#endif
-	cli(); //#asm("cli")
+	cli(); 
 	--rx_counter_usarte1;
-	sei(); //#asm("sei")
+	sei(); 
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTE1 Transmitter
-//#pragma used+
 void putchar_usarte1(char c)
 {
 	while ((USARTE1.STATUS & USART_DREIF_bm) == 0);
 	USARTE1.DATA=c;
 }
-//#pragma used-
 
 // USARTF0 initialization
 void usartf0_init(void)
@@ -661,10 +628,8 @@ void usartf0_init(void)
 	USARTF0.CTRLA=(USARTF0.CTRLA & (~(USART_RXCINTLVL_gm | USART_TXCINTLVL_gm | USART_DREINTLVL_gm))) |
 	USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_OFF_gc | USART_DREINTLVL_OFF_gc;
 
-	// Required Baud rate: 4800
-	// Real Baud Rate: 4800,5 (x1 Mode), Error: 0,0 %
-	USARTF0.BAUDCTRLA=0xFD;
-	USARTF0.BAUDCTRLB=((0x0D << USART_BSCALE_gp) & USART_BSCALE_gm) | 0x0C;
+	USARTF0.BAUDCTRLA = BAUDCTRLA_value;
+	USARTF0.BAUDCTRLB = BAUDCTRLB_value;
 
 	// Receiver: On
 	// Transmitter: On
@@ -693,7 +658,6 @@ volatile unsigned int rx_counter_usartf0=0;
 uint8_t rx_buffer_overflow_usartf0=0;
 
 // USARTF0 Receiver interrupt service routine
-//interrupt [USARTF0_RXC_vect] void usartf0_rx_isr(void)
 ISR(USARTF0_RXC_vect)
 {
 	unsigned char status;
@@ -719,7 +683,6 @@ ISR(USARTF0_RXC_vect)
 }
 
 // Receive a character from USARTF0
-//#pragma used+
 int getchar_usartf0(void)
 {
 	char data;
@@ -729,19 +692,16 @@ int getchar_usartf0(void)
 	#if RX_BUFFER_SIZE_USARTF0 != 256
 	if (rx_rd_index_usartf0 == RX_BUFFER_SIZE_USARTF0) rx_rd_index_usartf0=0;
 	#endif
-	cli(); //#asm("cli")
+	cli(); 
 	--rx_counter_usartf0;
-	sei(); //#asm("sei")
+	sei(); 
 	return data;
 }
-//#pragma used-
 
 // Write a character to the USARTF0 Transmitter
-//#pragma used+
 void putchar_usartf0(char c)
 {
 	while ((USARTF0.STATUS & USART_DREIF_bm) == 0);
 	USARTF0.DATA=c;
 }
-//#pragma used-
 

@@ -50,6 +50,6 @@ enum _CIVIF_ {
 #define LIFETIME    20      // Lifetime des Routingtab Eintrags in Sekunden
 
 // FIFO
-#define MAXDATA 30      // max. Datenl nge im Buffer (max Framelen = MAXDATA+3)
+#define MAXDATA 30      // max. Datenlaenge im Buffer (max Framelen = MAXDATA+3)
 #define FRAMELEN MAXDATA+3
 #define FRAMEBUFANZ 40 // max. Anzahl von Frames im Buffer

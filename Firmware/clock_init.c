@@ -14,7 +14,7 @@ void system_clocks_init(void)
 	// Save interrupts enabled/disabled state
 	s=SREG;
 	// Disable interrupts
-	cli(); //#asm("cli")
+	cli(); 
 
 	// External 8000,000 kHz clock source on XTAL1 initialization
 	OSC.XOSCCTRL=OSC_XOSCSEL_EXTCLK_gc;

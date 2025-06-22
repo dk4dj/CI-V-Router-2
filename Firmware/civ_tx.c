@@ -32,11 +32,10 @@ void send_fifo()
 	{
 		// Routing:
 		// sende Daten nur zu einem CIV Interface wenn dessen civ_adr =0 ist
-		// oder die Dest-Adresse genau übereinstimmt, oder wenn
-		// die Daten an DSP7 adressiert sind (dst=0xe0) dann sende sie auch zum Tuner
+		// oder die Dest-Adresse genau übereinstimmt
 		for(civ=CIV1; civ<=CIV7; civ++)
 		{
-			if  (data[3] == 0 || civ_adr[civ] == data[3] || (data[3] == 0xe0 && civ == CIV7))
+			if  (data[3] == 0 || civ_adr[civ] == data[3])
 			{
 				chantab[civ] = 1;
 			}

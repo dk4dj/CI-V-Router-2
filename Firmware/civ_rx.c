@@ -3,7 +3,7 @@
 uint8_t rx_state[7] = {0,0,0,0,0,0,0};    // state 0=warten, 1=lesen
 uint8_t rx_last[7] = {0,0,0,0,0,0,0};     // zuletzt empfangenes Zeichen um 2x FE zu erkennen
 uint8_t rx_router[7] = {0,0,0,0,0,0,0};   // =1 wenn 37,FE empfangen wurde und der Frame daher vom Router stammen könnte
-uint8_t act_civ = CIV1;    // aktuell bearbeitetes CIV Interface (immer der Reihe nach)
+uint8_t act_civ = CIV1;					  // aktuell bearbeitetes CIV Interface (immer der Reihe nach)
 // RX Puffer pro Kanal
 uint8_t rxbuf[7][RXBUFLEN];
 uint8_t rxidx[7] = {0,0,0,0,0,0,0};
